@@ -1,3 +1,7 @@
+# Files in articles folder
+articles/*
+!articles/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
