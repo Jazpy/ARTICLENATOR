@@ -28,9 +28,10 @@ def count_char_kinds(w):
   return (uppers, lowers, digits)
 
 def contains_keyword(s, keywords, label, lower=True):
-  s = s.sentence
   if lower:
-    s = s.lower()
+    s = s.sentence.lower()
+  else:
+    s = s.sentence
 
   if any(keyword in s for keyword in keywords):
     return label
@@ -100,7 +101,7 @@ def cap_words(s):
     if uppers == len(word_nd) and len(word_nd) >= 3:
       return Label.CLASS
 
-  return Label.ABSTAIN
+  return Label.PASS
 
 @labeling_function()
 def version_number(s):

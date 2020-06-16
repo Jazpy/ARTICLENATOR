@@ -1,3 +1,4 @@
+import warnings
 from snorkel.utils                   import probs_to_preds
 from snorkel.labeling                import PandasLFApplier
 from snorkel.labeling                import LFAnalysis
@@ -15,7 +16,9 @@ class Classifier:
   def train(self, dataset):
     # Apply labeler functions to training set
     lfs_applier = PandasLFApplier(lfs=self.lfs)
-    lfs_train   = lfs_applier.apply(df=dataset)
+    with warnings.catch_warnings():
+      warnings.filterwarnings('ignore')
+      lfs_train = lfs_applier.apply(df=dataset)
 
     # Build probabilistic label model
     label_model = LabelModel(cardinality=3, verbose=True)
@@ -35,7 +38,8 @@ class Classifier:
     preds_filtered = probs_to_preds(probs=probs_filtered)
 
     # Train scikit model
-    self.model = LogisticRegression(C=1e3, solver="liblinear")
+    self.model = LogisticRegression(C=1e3, solver="liblinear",
+      multi_class='auto')
     self.model.fit(X=dataset_train, y=preds_filtered)
 
   def classify(self, dataset):
