@@ -1,3 +1,6 @@
+# Swap files
+*.swp
+
 # Files in articles folder
 articles/*
 !articles/.gitkeep
