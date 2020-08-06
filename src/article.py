@@ -4,6 +4,8 @@ import textract
 from nltk import tokenize
 
 class Article:
+  article_counter = 0
+
   def __init__(self, path):
 
     if not os.path.isfile(path):
@@ -17,14 +19,23 @@ class Article:
     self.sentences = tokenize.sent_tokenize(self.raw_text.replace('\n', ' '))
     self.sentences = [x.strip() for x in self.sentences]
 
+    self.id = Article.article_counter
+    Article.article_counter += 1
+
   def get_name(self):
     return self.name
+
+  def get_id(self):
+    return self.id
 
   def get_text(self):
     return self.raw_text
 
   def get_sentences(self):
     return self.sentences
+
+  def clean_predictions(self):
+    self.predictions = []
 
   def add_prediction(self, prediction):
     self.predictions.append(prediction)

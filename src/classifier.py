@@ -8,10 +8,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model            import LogisticRegression
 
 class Classifier:
-  def __init__(self, lfs):
+  def __init__(self, lfs, name):
     self.lfs        = lfs
     self.model      = None
     self.vectorizer = None
+    self.name       = name
+
+  def get_name(self):
+    return self.name
 
   def train(self, dataset):
     # Apply labeler functions to training set
