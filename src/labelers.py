@@ -51,7 +51,7 @@ def simple_filter(sentence):
   s_no_space = sentence.replace(' ', '')
 
   # Filter out sentences with doi links, emails, or other unrelated stuff
-  keywords  = ['license', 'doi', '@']
+  keywords  = ['et', 'license', 'doi', '@']
   # Filter out sentences with references of the form: 'Genes 1(2):227–243.',
   # and stuf like 'pp 465-657'
   ref_regex  = '.*[0-9]+\(.*\)\:.[0-9]+.*'

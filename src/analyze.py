@@ -10,6 +10,7 @@ import labelers
 from article    import Article
 from classifier import Classifier
 from relgraph   import RelGraph
+from histogram  import Histogram
 
 def main():
   # Setup
@@ -74,16 +75,16 @@ def main():
   # Build training and full sentence sets
   all_sentences = pd.DataFrame(sentence_rows)
   trn_sentences = pd.DataFrame(all_sentences['sentence'].sample(
-    training_set_size, random_state=2))
+    training_set_size, random_state=1))
   tst_sentences = pd.DataFrame(all_sentences['sentence'])
 
   # Build classifiers for all categories
   print('Building classifiers...')
   classifiers = []
   classifiers.append(Classifier(labelers.registered_software, 'software'))
-  classifiers.append(Classifier(labelers.registered_species, 'species'))
-  classifiers.append(Classifier(labelers.registered_sample, 'sample'))
-  classifiers.append(Classifier(labelers.registered_method, 'method'))
+  classifiers.append(Classifier(labelers.registered_species,  'species'))
+  classifiers.append(Classifier(labelers.registered_sample,   'sample'))
+  classifiers.append(Classifier(labelers.registered_method,   'method'))
   classifiers.append(Classifier(labelers.registered_molecule, 'molecule'))
   classifiers.append(Classifier(labelers.registered_property, 'property'))
 
@@ -175,27 +176,35 @@ def main():
                                     reverse=True)
 
     # Update top_choices if there are less available choices
+    with open('common.txt', 'r') as c:
+      common = c.readlines()
+
+    for w in common:
+      w = w.strip()
+      if w in main_dict_ordered_keys:
+        main_dict_ordered_keys.remove(w)
+
     top_choices = min(top_choices, len(main_dict_ordered_keys))
 
+    print('Building relationship graph and keyword histogram...')
+    rel_graph = RelGraph(cl.get_name().upper())
+    histo = Histogram(cl.get_name().upper())
+
     for i, k in enumerate(main_dict_ordered_keys[:top_choices]):
-      print(f'{i}\t- {k}, {main_dict.get(k)[0]}')
+      article_list = main_dict.get(k)[1]
+      rel_graph.link_concept(k.upper(), article_list)
+      histo.count_concept(k.upper(), article_list)
 
-    print('Building relationship graph...')
-    rel_graph = RelGraph()
-    for i in range(top_choices):
-      article_list = main_dict.get(main_dict_ordered_keys[i])[1]
-      rel_graph.link_articles(article_list)
+    try:
+      print('Rendering graph...')
+      rel_graph.cairo_render(f'{png_dir}/{cl.get_name()}', 2160)
+      print(f'Success rendering to: {png_dir}/{cl.get_name()}.png')
 
-    rel_graph.cairo_render(f'{png_dir}/{cl.get_name()}', 900)
-  '''
-  while True:
-    choice = int(input('Choice: '))
-    if choice == -1:
-      break
-
-    for a in main_dict.get(main_dict_ordered_keys[choice])[1]:
-      print(a.get_name())
-  '''
+      print('Rendering histogram...')
+      histo.plot(f'{png_dir}/{cl.get_name()}_hist')
+      print(f'Success rendering to: {png_dir}/{cl.get_name()}_hist.png')
+    except Exception as e:
+      print(f'Could not render. {repr(e)}')
 
 if __name__ == "__main__":
   main()

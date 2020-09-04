@@ -11,8 +11,12 @@ class Article:
     if not os.path.isfile(path):
       raise FileNotFoundError
 
-    self.path        = path
-    self.name        = os.path.basename(path)
+
+    path_toks = os.path.basename(path).split('_')
+    self.path = path
+    self.year = int(path_toks[-1].split('.')[0])
+    self.name = ' '.join(path_toks[:-1])
+
     self.raw_text    = textract.process(self.path).decode('utf-8')
     self.predictions = []
 
@@ -24,6 +28,9 @@ class Article:
 
   def get_name(self):
     return self.name
+
+  def get_year(self):
+    return self.year
 
   def get_id(self):
     return self.id
